@@ -95,8 +95,8 @@ def handle_start(message):
 
     # Membuat tombol inline untuk fitur
     markup = InlineKeyboardMarkup()
-    markup.add(InlineKeyboardButton("Fitur: /ss URL WEBSITE", callback_data="help_ss"))
-    markup.add(InlineKeyboardButton("Fitur: /dorking inurl site jumlah", callback_data="help_dorking"))
+    markup.add(InlineKeyboardButton("Screnshot", callback_data="help_ss"))
+    markup.add(InlineKeyboardButton("Dorking", callback_data="help_dorking"))
     
     bot.send_message(message.chat.id, response, reply_markup=markup)
 
@@ -104,10 +104,10 @@ def handle_start(message):
 @bot.callback_query_handler(func=lambda call: True)
 def handle_query(call):
     if call.data == "help_ss":
-        response = "Cara penggunaan /ss:\n\n/ss URL WEBSITE\n\nContoh:\n/ss https://www.example.com"
+        response = "Buat Screnshot Website Yang Kalian Depes ☺️😈\n\nContoh:\n/ss https://www.example.com"
         bot.send_message(call.message.chat.id, response)
     elif call.data == "help_dorking":
-        response = "Cara penggunaan /dorking:\n\n/dorking inurl site jumlah\n\nContoh:\n/dorking inurl:index.php?id= site:example.com 10"
+        response = "Kalo Mau Dorking sabar Ya Kalo mau nugguh Hasil nya ☺️😊\n\nContoh:\n/dorking inurl:index.php?id= site:.com 10"
         bot.send_message(call.message.chat.id, response)
 
 # Jalankan bot
