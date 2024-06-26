@@ -1,6 +1,10 @@
 import telebot
+from telebot import types
 import requests
 import os
+from googlesearch import search
+import random
+import time
 
 # Token bot dari Telegram
 TOKEN = '7228466714:AAFlTFTdG1-WXDDJzMZjBLTX4ZpLEJf4PnA'
@@ -23,10 +27,6 @@ def take_screenshot(url):
 
 # Fungsi untuk melakukan dorking
 def perform_dorking(query, site, num_results):
-    from googlesearch import search
-    import random
-    import time
-
     # Daftar User-Agent yang bagus
     user_agents = [
         'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
@@ -44,6 +44,22 @@ def perform_dorking(query, site, num_results):
         time.sleep(random.uniform(2, 5))
     return results
 
+# Command handler untuk /start
+@bot.message_handler(commands=['start'])
+def handle_start(message):
+    markup = types.ReplyKeyboardMarkup(row_width=2)
+    ss_button = types.KeyboardButton('/ss')
+    dorking_button = types.KeyboardButton('/dorking')
+    markup.add(ss_button, dorking_button)
+    
+    response = (
+        "MAAF BOT INI MASIH DALAM MASA PENGEMBANGAN, JADI MASIH BELUM BANYAK FITUR, DAN FITUR YANG TERSEDIA ADA DI BAWAH\n\n"
+        "FITUR :\n"
+        "/ss URL WEBSITE - Mengambil screenshot website\n"
+        "/dorking inurl site jumlah - Buat dorking, jadi tunggu in hasil nya jangan spam"
+    )
+    bot.send_message(message.chat.id, response, reply_markup=markup)
+
 # Command handler untuk /ss
 @bot.message_handler(commands=['ss'])
 def handle_screenshot(message):
@@ -51,7 +67,7 @@ def handle_screenshot(message):
         # Memisahkan command dan URL
         parts = message.text.split()
         if len(parts) < 2:
-            bot.reply_to(message, "Harap berikan URL yang valid. Contoh penggunaan: /ss https://www.example.com")
+            bot.reply_to(message, "Kamu salah cara make nya Contoh: /ss https://www.example.com")
             return
         
         url = parts[1]
@@ -69,7 +85,7 @@ def handle_dorking(message):
         # Memisahkan command dan parameter
         parts = message.text.split()
         if len(parts) < 4:
-            bot.reply_to(message, "Harap berikan parameter yang valid. Contoh penggunaan: /dorking inurl site jumlah")
+            bot.reply_to(message, "Kamu salah cara make nya Contoh: /dorking inurl site jumlah")
             return
         
         query = parts[1]
@@ -84,17 +100,6 @@ def handle_dorking(message):
             bot.reply_to(message, "Tidak ada hasil yang ditemukan.")
     except Exception as e:
         bot.reply_to(message, f"Terjadi kesalahan: {e}")
-
-# Command handler untuk /start
-@bot.message_handler(commands=['start'])
-def handle_start(message):
-    response = (
-        "MAAF BOT INI MASIH DALAM MASA PENGEMBANGAN, JADI MASIH BELUM BANYAK FITUR, DAN FITUR YANG TERSEDIA ADA DI BAWAH\n\n"
-        "FITUR :\n"
-        "/ss URL WEBSITE - Mengambil screenshot website Yang lu depes\n"
-        "/dorking inurl site jumlah - Buat dorking, sabar ya nama nya juga lagi dorking"
-    )
-    bot.reply_to(message, response)
 
 # Jalankan bot
 bot.polling()
