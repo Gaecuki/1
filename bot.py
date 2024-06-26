@@ -1,9 +1,6 @@
 import telebot
 import requests
-import os
-from googlesearch import search
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
-from googletrans import Translator
 
 # Token bot dari Telegram
 TOKEN = '7228466714:AAFlTFTdG1-WXDDJzMZjBLTX4ZpLEJf4PnA'
@@ -28,6 +25,7 @@ def take_screenshot(url):
 def perform_dorking(query, site, num_results):
     import random
     import time
+    from googlesearch import search
 
     # Daftar User-Agent yang bagus
     user_agents = [
@@ -46,11 +44,27 @@ def perform_dorking(query, site, num_results):
         time.sleep(random.uniform(2, 5))
     return results
 
-# Fungsi untuk menerjemahkan teks menggunakan API Google Translate
-def translate_text(text, target_lang='en'):
-    translator = Translator()
-    translation = translator.translate(text, dest=target_lang)
-    return translation.text
+# Fungsi untuk mengirim permintaan AI ke API Gemini
+def ai_response(question):
+    api_key = 'AIzaSyCY-YCnMzMXK-q2il055VQL-yi9dYqp8ms'
+    api_url = f'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key={api_key}'
+    data = {
+        "contents": [
+            {
+                "parts": [
+                    {
+                        "text": question
+                    }
+                ]
+            }
+        ]
+    }
+
+    response = requests.post(api_url, json=data)
+    if response.status_code == 200:
+        return response.json()["contents"][0]["parts"][0]["text"]
+    else:
+        raise Exception(f"Terjadi kesalahan saat meminta respons AI: {response.status_code}")
 
 # Command handler untuk /ss
 @bot.message_handler(commands=['ss'])
@@ -104,7 +118,6 @@ def handle_start(message):
     markup = InlineKeyboardMarkup()
     markup.add(InlineKeyboardButton("Fitur: /ss URL WEBSITE", callback_data="help_ss"))
     markup.add(InlineKeyboardButton("Fitur: /dorking inurl site jumlah", callback_data="help_dorking"))
-    markup.add(InlineKeyboardButton("Fitur: AI Translation", callback_data="help_ai"))
     
     bot.send_message(message.chat.id, response, reply_markup=markup)
 
@@ -117,24 +130,15 @@ def handle_query(call):
     elif call.data == "help_dorking":
         response = "Cara penggunaan /dorking:\n\n/dorking inurl site jumlah\n\nContoh:\n/dorking inurl:index.php?id= site:example.com 10"
         bot.send_message(call.message.chat.id, response)
-    elif call.data == "help_ai":
-        response = "Bot ini dapat membantu Anda menerjemahkan teks menggunakan layanan AI Translation.\n\nKirimkan teks yang ingin Anda terjemahkan, dan bot akan menerjemahkannya ke dalam bahasa yang Anda inginkan."
-        bot.send_message(call.message.chat.id, response)
 
-# Message handler untuk menerima pesan teks
+# Handler untuk pesan teks biasa
 @bot.message_handler(func=lambda message: True)
 def handle_message(message):
-    if message.text.startswith('/'):
-        return  # Hindari menanggapi pesan jika dimulai dengan '/'
-
     try:
-        # Menerjemahkan teks yang diterima menggunakan layanan AI Translation
-        translated_text = translate_text(message.text)
-
-        # Mengirimkan hasil terjemahan ke pengguna
-        bot.reply_to(message, f"Terjemahan:\n\n{translated_text}")
+        response = ai_response(message.text)
+        bot.reply_to(message, response)
     except Exception as e:
-        bot.reply_to(message, f"Terjadi kesalahan saat menerjemahkan teks: {e}")
+        bot.reply_to(message, f"Terjadi kesalahan: {e}")
 
 # Jalankan bot
 bot.polling()
