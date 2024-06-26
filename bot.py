@@ -1,5 +1,7 @@
 import telebot
 import requests
+import os
+from googlesearch import search
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 # Token bot dari Telegram
@@ -25,7 +27,6 @@ def take_screenshot(url):
 def perform_dorking(query, site, num_results):
     import random
     import time
-    from googlesearch import search
 
     # Daftar User-Agent yang bagus
     user_agents = [
@@ -43,28 +44,6 @@ def perform_dorking(query, site, num_results):
         results.append(url)
         time.sleep(random.uniform(2, 5))
     return results
-
-# Fungsi untuk mengirim permintaan AI ke API Gemini
-def ai_response(question):
-    api_key = 'AIzaSyCY-YCnMzMXK-q2il055VQL-yi9dYqp8ms'
-    api_url = f'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key={api_key}'
-    data = {
-        "contents": [
-            {
-                "parts": [
-                    {
-                        "text": question
-                    }
-                ]
-            }
-        ]
-    }
-
-    response = requests.post(api_url, json=data)
-    if response.status_code == 200:
-        return response.json()["contents"][0]["parts"][0]["text"]
-    else:
-        raise Exception(f"Terjadi kesalahan saat meminta respons AI: {response.status_code}")
 
 # Command handler untuk /ss
 @bot.message_handler(commands=['ss'])
@@ -111,13 +90,15 @@ def handle_dorking(message):
 @bot.message_handler(commands=['start'])
 def handle_start(message):
     response = (
+        `Halo selamat malam ${username}! 👋🏻\n\n' +
+        `Saya adalah bot yang dibuat oleh @cadelXploit.\n\n` +
         "MAAF BOT INI MASIH DALAM MASA PENGEMBANGAN, JADI MASIH BELUM BANYAK FITUR, DAN FITUR YANG TERSEDIA ADA DI BAWAH\n\n"
     )
 
     # Membuat tombol inline untuk fitur
     markup = InlineKeyboardMarkup()
-    markup.add(InlineKeyboardButton("Fitur: /ss URL WEBSITE", callback_data="help_ss"))
-    markup.add(InlineKeyboardButton("Fitur: /dorking inurl site jumlah", callback_data="help_dorking"))
+    markup.add(InlineKeyboardButton("Screnshot", callback_data="help_ss"))
+    markup.add(InlineKeyboardButton("Dorking", callback_data="help_dorking"))
     
     bot.send_message(message.chat.id, response, reply_markup=markup)
 
@@ -125,20 +106,11 @@ def handle_start(message):
 @bot.callback_query_handler(func=lambda call: True)
 def handle_query(call):
     if call.data == "help_ss":
-        response = "Cara penggunaan /ss:\n\n/ss URL WEBSITE\n\nContoh:\n/ss https://www.example.com"
+        response = "Buat Screnshot Website Yang Kalian Depes ☺️😈\n\nContoh:\n/ss https://www.example.com"
         bot.send_message(call.message.chat.id, response)
     elif call.data == "help_dorking":
-        response = "Cara penggunaan /dorking:\n\n/dorking inurl site jumlah\n\nContoh:\n/dorking inurl:index.php?id= site:example.com 10"
+        response = "Kalo Mau Dorking sabar Ya Kalo mau nugguh Hasil nya ☺️😊\n\nContoh:\n/dorking inurl:index.php?id= site:.com 10"
         bot.send_message(call.message.chat.id, response)
-
-# Handler untuk pesan teks biasa
-@bot.message_handler(func=lambda message: True)
-def handle_message(message):
-    try:
-        response = ai_response(message.text)
-        bot.reply_to(message, response)
-    except Exception as e:
-        bot.reply_to(message, f"Terjadi kesalahan: {e}")
 
 # Jalankan bot
 bot.polling()
