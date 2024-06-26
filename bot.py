@@ -1,5 +1,6 @@
 import telebot
 import requests
+import os
 
 # Token bot dari Telegram
 TOKEN = '7228466714:AAFlTFTdG1-WXDDJzMZjBLTX4ZpLEJf4PnA'
@@ -13,29 +14,12 @@ def take_screenshot(url):
 
     response = requests.get(api_url)
     if response.status_code == 200:
-        screenshot_path = '/data/data/com.termux/files/home/screenshot.png'
+        screenshot_path = 'screenshot.png'
         with open(screenshot_path, 'wb') as file:
             file.write(response.content)
         return screenshot_path
     else:
         raise Exception(f"Terjadi kesalahan saat mengambil screenshot: {response.status_code}")
-
-# Command handler untuk /ss
-@bot.message_handler(commands=['ss'])
-def handle_screenshot(message):
-    try:
-        # Memisahkan command dan URL
-        parts = message.text.split()
-        if len(parts) < 2:
-            bot.reply_to(message, "Salah Chat kanjut Contoh: /ss https://www.example.com")
-            return
-        
-        url = parts[1]
-        screenshot_path = take_screenshot(url)
-        with open(screenshot_path, 'rb') as photo:
-            bot.send_photo(message.chat.id, photo)
-    except Exception as e:
-        bot.reply_to(message, f"Terjadi kesalahan: {e}")
 
 # Fungsi untuk melakukan dorking
 def perform_dorking(query, site, num_results):
@@ -60,6 +44,24 @@ def perform_dorking(query, site, num_results):
         time.sleep(random.uniform(2, 5))
     return results
 
+# Command handler untuk /ss
+@bot.message_handler(commands=['ss'])
+def handle_screenshot(message):
+    try:
+        # Memisahkan command dan URL
+        parts = message.text.split()
+        if len(parts) < 2:
+            bot.reply_to(message, "Harap berikan URL yang valid. Contoh penggunaan: /ss https://www.example.com")
+            return
+        
+        url = parts[1]
+        screenshot_path = take_screenshot(url)
+        with open(screenshot_path, 'rb') as photo:
+            bot.send_photo(message.chat.id, photo)
+        os.remove(screenshot_path)
+    except Exception as e:
+        bot.reply_to(message, f"Terjadi kesalahan: {e}")
+
 # Command handler untuk /dorking
 @bot.message_handler(commands=['dorking'])
 def handle_dorking(message):
@@ -67,7 +69,7 @@ def handle_dorking(message):
         # Memisahkan command dan parameter
         parts = message.text.split()
         if len(parts) < 4:
-            bot.reply_to(message, "Tungguin puki kalo ngedorking Contoh: /dorking inurl/admin/login com 10")
+            bot.reply_to(message, "Harap berikan parameter yang valid. Contoh penggunaan: /dorking inurl site jumlah")
             return
         
         query = parts[1]
@@ -89,8 +91,8 @@ def handle_start(message):
     response = (
         "MAAF BOT INI MASIH DALAM MASA PENGEMBANGAN, JADI MASIH BELUM BANYAK FITUR, DAN FITUR YANG TERSEDIA ADA DI BAWAH\n\n"
         "FITUR :\n"
-        "/ss URL WEBSITE - Mengambil screenshot website yang lu depes\n"
-        "/dorking inurl site jumlah - Buat dorking ya"
+        "/ss URL WEBSITE - Mengambil screenshot website Yang lu depes\n"
+        "/dorking inurl site jumlah - Buat dorking, sabar ya nama nya juga lagi dorking"
     )
     bot.reply_to(message, response)
 
