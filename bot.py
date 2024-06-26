@@ -111,7 +111,7 @@ def handle_query(call):
         response = "Buat Screenshot Website Yang Lu deface 😈☺️🤔\n\nContoh:\n/ss https://www.example.com"
         bot.send_message(call.message.chat.id, response)
     elif call.data == "help_dorking":
-        response = "Sabar Ya kalo dorking, Jangan spam ☺️🙂🥺\n\nContoh:\n/dorking inurl:index.php?id= site:example.com 10"
+        response = "Sabar Ya kalo dorking, Jangan spam ☺️🙂🥺\n\nContoh:\n/dorking inurl:index.php?id= site:.com 10"
         bot.send_message(call.message.chat.id, response)
 
 # Jalankan bot
