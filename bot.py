@@ -3,6 +3,7 @@ import requests
 import os
 from googlesearch import search
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
+from googletrans import Translator
 
 # Token bot dari Telegram
 TOKEN = '7228466714:AAFlTFTdG1-WXDDJzMZjBLTX4ZpLEJf4PnA'
@@ -44,6 +45,12 @@ def perform_dorking(query, site, num_results):
         results.append(url)
         time.sleep(random.uniform(2, 5))
     return results
+
+# Fungsi untuk menerjemahkan teks menggunakan API Google Translate
+def translate_text(text, target_lang='en'):
+    translator = Translator()
+    translation = translator.translate(text, dest=target_lang)
+    return translation.text
 
 # Command handler untuk /ss
 @bot.message_handler(commands=['ss'])
@@ -95,8 +102,9 @@ def handle_start(message):
 
     # Membuat tombol inline untuk fitur
     markup = InlineKeyboardMarkup()
-    markup.add(InlineKeyboardButton("Screnshot", callback_data="help_ss"))
-    markup.add(InlineKeyboardButton("Dorking", callback_data="help_dorking"))
+    markup.add(InlineKeyboardButton("Fitur: /ss URL WEBSITE", callback_data="help_ss"))
+    markup.add(InlineKeyboardButton("Fitur: /dorking inurl site jumlah", callback_data="help_dorking"))
+    markup.add(InlineKeyboardButton("Fitur: AI Translation", callback_data="help_ai"))
     
     bot.send_message(message.chat.id, response, reply_markup=markup)
 
@@ -104,11 +112,29 @@ def handle_start(message):
 @bot.callback_query_handler(func=lambda call: True)
 def handle_query(call):
     if call.data == "help_ss":
-        response = "Buat Screnshot Website Yang Kalian Depes ☺️😈\n\nContoh:\n/ss https://www.example.com"
+        response = "Cara penggunaan /ss:\n\n/ss URL WEBSITE\n\nContoh:\n/ss https://www.example.com"
         bot.send_message(call.message.chat.id, response)
     elif call.data == "help_dorking":
-        response = "Kalo Mau Dorking sabar Ya Kalo mau nugguh Hasil nya ☺️😊\n\nContoh:\n/dorking inurl:index.php?id= site:.com 10"
+        response = "Cara penggunaan /dorking:\n\n/dorking inurl site jumlah\n\nContoh:\n/dorking inurl:index.php?id= site:example.com 10"
         bot.send_message(call.message.chat.id, response)
+    elif call.data == "help_ai":
+        response = "Bot ini dapat membantu Anda menerjemahkan teks menggunakan layanan AI Translation.\n\nKirimkan teks yang ingin Anda terjemahkan, dan bot akan menerjemahkannya ke dalam bahasa yang Anda inginkan."
+        bot.send_message(call.message.chat.id, response)
+
+# Message handler untuk menerima pesan teks
+@bot.message_handler(func=lambda message: True)
+def handle_message(message):
+    if message.text.startswith('/'):
+        return  # Hindari menanggapi pesan jika dimulai dengan '/'
+
+    try:
+        # Menerjemahkan teks yang diterima menggunakan layanan AI Translation
+        translated_text = translate_text(message.text)
+
+        # Mengirimkan hasil terjemahan ke pengguna
+        bot.reply_to(message, f"Terjemahan:\n\n{translated_text}")
+    except Exception as e:
+        bot.reply_to(message, f"Terjadi kesalahan saat menerjemahkan teks: {e}")
 
 # Jalankan bot
 bot.polling()
