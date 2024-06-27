@@ -6,7 +6,7 @@ const fs = require('fs');
 const path = require('path');
 
 // Token bot dari Telegram
-const TOKEN = '7228466714:AAFlTFTdG1-WXDDJzMZjBLTX4ZpLEJf4PnA';
+const TOKEN = '7228466714:AAFlTFTdG1-WXDDJzMZjBLTXdG1-WXDDJzMZjBLTX4ZpLEJf4PnA';
 const bot = new TelegramBot(TOKEN, { polling: true });
 
 // Fungsi untuk mengambil screenshot menggunakan API Screenshot Machine
@@ -77,7 +77,6 @@ async function downloadTikTok(url) {
     const apiUrl = `https://dikaardnt.com/api/download/tiktok?url=${url}`;
     try {
         const response = await axios.get(apiUrl);
-        console.log('TikTok API Response:', response.data); // Logging response
         if (response.data && response.data.result && response.data.result.nowatermark) {
             return response.data.result.nowatermark;
         } else {
