@@ -6,7 +6,7 @@ const fs = require('fs');
 const path = require('path');
 
 // Token bot dari Telegram
-const TOKEN = '7228466714:AAFlTFTdG1-WXDDJzMZjBLTXdG1-WXDDJzMZjBLTX4ZpLEJf4PnA';
+const TOKEN = '7228466714:AAFlTFTdG1-WXDDJzMZjBLTX4ZpLEJf4PnA';
 const bot = new TelegramBot(TOKEN, { polling: true });
 
 // Fungsi untuk mengambil screenshot menggunakan API Screenshot Machine
@@ -77,8 +77,10 @@ async function downloadTikTok(url) {
     const apiUrl = `https://dikaardnt.com/api/download/tiktok?url=${url}`;
     try {
         const response = await axios.get(apiUrl);
-        if (response.data && response.data.result && response.data.result.nowatermark) {
-            return response.data.result.nowatermark;
+        console.log(response.data); // Logging the response data for debugging
+        if (response.data && response.data.video && response.data.video.url) {
+            const videoUrl = response.data.video.url.without_watermark_hd || response.data.video.url.without_watermark || response.data.video.url.watermark;
+            return videoUrl;
         } else {
             throw new Error('Tidak dapat mengambil video TikTok.');
         }
@@ -162,7 +164,6 @@ bot.onText(/\/tiktok (.+)/, async (msg, match) => {
     }
 });
 
-// Command handler untuk /start
 bot.onText(/\/start/, (msg) => {
     const chatId = msg.chat.id;
     const userName = msg.from.username;
@@ -189,7 +190,6 @@ Klik salah satu tombol di bawah untuk info lebih lanjut:
     bot.sendMessage(chatId, response, opts);
 });
 
-// Callback handler untuk tombol inline
 bot.on('callback_query', (callbackQuery) => {
     const message = callbackQuery.message;
     let response;
@@ -198,7 +198,7 @@ bot.on('callback_query', (callbackQuery) => {
             response = 'Cara menggunakan /ss:\n\n/ss URL_WEBSITE\n\nContoh:\n/ss https://www.example.com';
             break;
         case 'help_dorking':
-            response = 'Cara menggunakan /dorking:\n\n/dorking inurl SITE JUMLAH\n\nContoh:\n/dorking inurl:index.php?id= site:example.com 10';
+            response = 'Cara menggunakan /dorking:\n\n/dorking inurl SITE JUMLAH\n\nContoh:\n/dorking inurl:index.php?id= site:.com 10';
             break;
         case 'help_subdomain':
             response = 'Cara menggunakan /subdomain:\n\n/subdomain DOMAIN\n\nContoh:\n/subdomain example.com';
@@ -207,7 +207,7 @@ bot.on('callback_query', (callbackQuery) => {
             response = 'Cara menggunakan /reverseip:\n\n/reverseip IP_ADDRESS\n\nContoh:\n/reverseip 192.168.1.1';
             break;
         case 'help_tiktok':
-            response = 'Cara menggunakan /tiktok:\n\n/tiktok URL_TIKTOK\n\nContoh:\n/tiktok https://www.tiktok.com/@username/video/1234567890';
+            response = 'Cara menggunakan /tiktok:\n\n/tiktok URL_TIKTOK\n\nContoh:\n/tiktok https://vt.tiktok.com/ZSYuGMKCs/';
             break;
         default:
             response = 'Perintah tidak dikenali.';
