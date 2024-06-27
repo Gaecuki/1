@@ -72,6 +72,21 @@ async function findDomainsByIp(ip) {
     }
 }
 
+// Fungsi untuk mendownload video TikTok
+async function downloadTikTok(url) {
+    const apiUrl = `https://dikaardnt.com/api/download/tiktok?url=${url}`;
+    try {
+        const response = await axios.get(apiUrl);
+        if (response.data && response.data.result && response.data.result.nowatermark) {
+            return response.data.result.nowatermark;
+        } else {
+            throw new Error('Tidak dapat mengambil video TikTok.');
+        }
+    } catch (error) {
+        throw new Error(`Terjadi kesalahan saat mendownload video TikTok: ${error.message}`);
+    }
+}
+
 // Command handler untuk /ss
 bot.onText(/\/ss (.+)/, async (msg, match) => {
     const chatId = msg.chat.id;
@@ -135,6 +150,18 @@ bot.onText(/\/reverseip (.+)/, async (msg, match) => {
     }
 });
 
+// Command handler untuk /tiktok
+bot.onText(/\/tiktok (.+)/, async (msg, match) => {
+    const chatId = msg.chat.id;
+    const url = match[1];
+    try {
+        const videoUrl = await downloadTikTok(url);
+        await bot.sendVideo(chatId, videoUrl);
+    } catch (error) {
+        bot.sendMessage(chatId, `Terjadi kesalahan: ${error.message}`);
+    }
+});
+
 // Command handler untuk /start
 bot.onText(/\/start/, (msg) => {
     const chatId = msg.chat.id;
@@ -155,6 +182,7 @@ Klik salah satu tombol di bawah untuk info lebih lanjut:
                 [{ text: 'Dorking', callback_data: 'help_dorking' }],
                 [{ text: 'Cek Subdomain', callback_data: 'help_subdomain' }],
                 [{ text: 'Reverse IP Lookup', callback_data: 'help_reverseip' }],
+                [{ text: 'Download TikTok', callback_data: 'help_tiktok' }],
             ],
         },
     };
@@ -170,13 +198,16 @@ bot.on('callback_query', (callbackQuery) => {
             response = 'Cara menggunakan /ss:\n\n/ss URL_WEBSITE\n\nContoh:\n/ss https://www.example.com';
             break;
         case 'help_dorking':
-            response = 'Cara menggunakan /dorking:\n\n/dorking inurl SITE JUMLAH\n\nContoh:\n/dorking inurl:index.php?id= site:example.com 10';
+            response = 'Cara menggunakan /dorking:\n\n/dorking inurl SITE JUMLAH\n\nContoh:\n/dorking inurl:index.php?id= site:.com 10';
             break;
         case 'help_subdomain':
             response = 'Cara menggunakan /subdomain:\n\n/subdomain DOMAIN\n\nContoh:\n/subdomain example.com';
             break;
         case 'help_reverseip':
             response = 'Cara menggunakan /reverseip:\n\n/reverseip IP_ADDRESS\n\nContoh:\n/reverseip 192.168.1.1';
+            break;
+        case 'help_tiktok':
+            response = 'Cara menggunakan /tiktok:\n\n/tiktok URL_TIKTOK\n\nContoh:\n/tiktok https://www.tiktok.com/@username/video/1234567890';
             break;
         default:
             response = 'Perintah tidak dikenali.';
